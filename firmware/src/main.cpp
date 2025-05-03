@@ -1,9 +1,12 @@
 #include <Arduino.h>
 
-
 #include <gpio.hpp>
 #include <sn74hc595.hpp>
 #include <ec11e.hpp>
+
+#include "common.hpp"
+
+common::led_bar current_led_bar = common::led_bar();
 
 atmel::gpio ser_pin(7);
 atmel::gpio clk_pin(9);
@@ -42,9 +45,17 @@ void loop() {
     if(encoder_value > 10){ 
         encoder_value = 10;
         encoder.set_encoder_value(encoder_value);
+    }   
+
+    if(!encoder.get_button_value()) {
+        encoder.set_button_value(true);
+        encoder.set_encoder_value(0);
+        encoder_value = 0;
     }
 
-    uint16_t output_bit = (1u << encoder_value);
+    current_led_bar.fill_bar(encoder_value);
+
+    uint16_t output_bit = current_led_bar.parse();
     uint8_t output[] = {output_bit & 0xFF, (output_bit >> 8) & 0xFF} ;
     shift_reg.set_output(output,MSBFIRST);
 }
