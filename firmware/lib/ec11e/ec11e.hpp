@@ -10,7 +10,7 @@ class ec11e {
         inline constexpr ec11e(
             GPIO pin_a,
             GPIO pin_b,
-            GPIO button
+            GPIO button = (GPIO)nullptr
         ) noexcept : 
             pin_a(pin_a),
             pin_b(pin_b),
@@ -18,11 +18,14 @@ class ec11e {
             encoder_value(0),
             button_value(false)
         {}
-
+    
         auto init() -> void {
             pin_a->set_mode(INPUT);
             pin_b->set_mode(INPUT);
-            button->set_mode(INPUT);
+
+            if( button != (GPIO)nullptr ) {
+                button->set_mode(INPUT);
+            }
         }
 
         auto update_encoder() -> void {
@@ -47,14 +50,16 @@ class ec11e {
         }
 
         auto update_button() -> void {
-            button_value = button->get();
+            if( button != (GPIO)nullptr ) {
+                button_value = button->get();
+            }
         }
 
         [[nodiscard]] auto get_button_value() -> bool {
             return button_value;
         }
 
-        auto set_button_value(bool value) {
+        auto set_button_value(bool value) -> void {
             button_value = value;
         }
 
