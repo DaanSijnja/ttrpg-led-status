@@ -3,6 +3,14 @@
 namespace counter
 {
 
+    static auto frequenty_to_clock_ticks(const unsigned int freq, const unsigned int cpu_speed, const unsigned int prescaler) -> unsigned int {
+        return ( (cpu_speed) / (prescaler * freq) ) - 1;
+    }
+
+    static auto ms_to_clock_ticks(const unsigned int ms, const unsigned int cpu_speed, const unsigned int prescaler) -> unsigned int {
+        return frequenty_to_clock_ticks((1000 / ms), cpu_speed, prescaler);
+    }
+
     typedef unsigned long long int counter_t;
 
     class clock {
@@ -25,7 +33,8 @@ namespace counter
          public:
             compare(clock *c, const unsigned int interval) noexcept :
             c(c),
-            interval(interval)
+            interval(interval),
+            last_interval(0)
             {}
 
             auto compare_count(const bool reset = true) noexcept -> bool {

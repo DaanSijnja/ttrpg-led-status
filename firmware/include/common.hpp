@@ -1,7 +1,6 @@
 #pragma once
 #include <Arduino.h>
 
-
 namespace common {
 
     constexpr size_t BAR_SIZE = 10;
