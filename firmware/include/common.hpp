@@ -6,9 +6,17 @@
 
 namespace common {
 
+    static auto frequenty_to_clock_ticks(const unsigned int freq, const unsigned int cpu_speed, const unsigned int prescaler) -> unsigned int {
+        return ( (cpu_speed) / (prescaler * freq) ) - 1;
+    }
+
+    [[maybe_unused]] static auto ms_to_clock_ticks(const unsigned int ms, const unsigned int cpu_speed, const unsigned int prescaler) -> unsigned int {
+        return frequenty_to_clock_ticks((1000 / ms), cpu_speed, prescaler);
+    }
+
     constexpr size_t BAR_SIZE = 10;
 
-    auto clamp_encoder(ec11e<atmel::gpio *> * encoder, int min, int max) -> int16_t {
+    auto clamp_encoder(ec11e<atmel::gpio *> * encoder, int min, int max) -> uint16_t {
         int16_t value = encoder->get_encoder_value();
         if(value < min){
             encoder->set_encoder_value(min);
