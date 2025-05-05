@@ -24,6 +24,9 @@ common::blink blink( &counter_clock, settings::COUNTER_FREQUENCY / settings::BLI
 sn74hc595<2,atmel::gpio *> shift_reg(&ser_pin, &clk_pin, &latch_pin);
 ec11e<atmel::gpio *> encoder(&encoder_pin_a, &encoder_pin_b, &encoder_button);
 
+const float step_size = static_cast<float>(common::BAR_SIZE) / static_cast<float>(settings::TOTAL_STEPS);
+uint16_t prev_encoder_value = -1;
+
 /// @brief Initalizes the interrupts used for the ec11e encoder and the timer used for counter_clock
 auto ISR_init() -> void {
     //encoder related
@@ -36,7 +39,7 @@ auto ISR_init() -> void {
     TCCR0B = (1 << CS01) | (1 << CS00);
     TIMSK0 = (1 << OCIE0A);
 
-    const auto clock_value = counter::frequenty_to_clock_ticks(settings::COUNTER_FREQUENCY, 8000000u, 64u);
+    const auto clock_value = common::frequenty_to_clock_ticks(settings::COUNTER_FREQUENCY, 8000000u, 64u);
     if(clock_value <= 255){
         OCR0A = clock_value;
     } else {
@@ -51,20 +54,29 @@ void setup() {
 }
 
 void loop() {
+    static float bar_value, spare;
+    uint16_t encoder_value = common::clamp_encoder(&encoder, 0, settings::TOTAL_STEPS) ;
 
-    int16_t encoder_value = common::clamp_encoder(&encoder, 0, settings::TOTAL_STEPS) ;
-
+    if(prev_encoder_value != encoder_value) {
+        bar_value = step_size * encoder_value;
+        spare = bar_value - floor(bar_value);
+        blink.set_interval( static_cast<unsigned int>(static_cast<float>(settings::COUNTER_FREQUENCY / settings::BLINK_FREQUENCY) * spare )  ); 
+    }
+    
     if(!encoder.get_button_value()) {
         encoder.set_button_value(true);
         encoder.set_encoder_value(0);
-        encoder_value = 0;
+        bar_value = 0;
     }
 
-    if(blink.check())
-    {
-        current_led_bar.fill_bar(encoder_value);
-    } else {
-        current_led_bar.fill_bar(encoder_value+1);
+    current_led_bar.fill_bar( static_cast<size_t>( floor(bar_value) ) );
+
+    if(spare > 0.0) {
+        
+
+        if(blink.check()) {
+            current_led_bar.fill_bar( static_cast<size_t>( floor(bar_value) ) + 1 );
+        } 
     }
         
     uint16_t output_bit = current_led_bar.parse();
