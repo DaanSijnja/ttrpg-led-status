@@ -7,7 +7,7 @@ namespace counter
         return ( (cpu_speed) / (prescaler * freq) ) - 1;
     }
 
-    static auto ms_to_clock_ticks(const unsigned int ms, const unsigned int cpu_speed, const unsigned int prescaler) -> unsigned int {
+    [[maybe_unused]] static auto ms_to_clock_ticks(const unsigned int ms, const unsigned int cpu_speed, const unsigned int prescaler) -> unsigned int {
         return frequenty_to_clock_ticks((1000 / ms), cpu_speed, prescaler);
     }
 
@@ -31,7 +31,7 @@ namespace counter
 
     class compare {
          public:
-            compare(clock *c, const unsigned int interval) noexcept :
+            constexpr compare(clock *c, const unsigned int interval) noexcept :
             c(c),
             interval(interval),
             last_interval(0)

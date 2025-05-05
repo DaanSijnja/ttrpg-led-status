@@ -19,9 +19,7 @@ atmel::gpio encoder_pin_b(3);
 atmel::gpio encoder_button(1);
 
 counter::clock counter_clock;
-counter::compare comp( &counter_clock, settings::COUNTER_FREQUENCY / settings::BLINK_FREQUENCY);
-
-bool blink = false;
+common::blink blink( &counter_clock, settings::COUNTER_FREQUENCY / settings::BLINK_FREQUENCY);
 
 sn74hc595<2,atmel::gpio *> shift_reg(&ser_pin, &clk_pin, &latch_pin);
 ec11e<atmel::gpio *> encoder(&encoder_pin_a, &encoder_pin_b, &encoder_button);
@@ -44,9 +42,6 @@ auto ISR_init() -> void {
     } else {
         OCR0A = 255;
     }
-
-
-
 }
 
 void setup() {
@@ -57,17 +52,7 @@ void setup() {
 
 void loop() {
 
-    int16_t encoder_value = encoder.get_encoder_value();
-
-    if(encoder_value < 0){ 
-        encoder_value = 0;
-        encoder.set_encoder_value(encoder_value);
-    }
-
-    if(encoder_value > 10){ 
-        encoder_value = 10;
-        encoder.set_encoder_value(encoder_value);
-    }   
+    int16_t encoder_value = common::clamp_encoder(&encoder, 0, settings::TOTAL_STEPS) ;
 
     if(!encoder.get_button_value()) {
         encoder.set_button_value(true);
@@ -75,18 +60,13 @@ void loop() {
         encoder_value = 0;
     }
 
-    if(comp.compare_count(true)){
-        if(blink){ blink = false; } else { blink = true; }
-    }
-
-    if(blink)
+    if(blink.check())
     {
         current_led_bar.fill_bar(encoder_value);
     } else {
         current_led_bar.fill_bar(encoder_value+1);
     }
         
-
     uint16_t output_bit = current_led_bar.parse();
     uint8_t output[] = {output_bit & 0xFF, (output_bit >> 8) & 0xFF} ;
     shift_reg.set_output(output,MSBFIRST);

@@ -1,9 +1,27 @@
 #pragma once
 #include <Arduino.h>
+#include <gpio.hpp>
+#include <counter.hpp>
+#include <ec11e.hpp>
 
 namespace common {
 
     constexpr size_t BAR_SIZE = 10;
+
+    auto clamp_encoder(ec11e<atmel::gpio *> * encoder, int min, int max) -> int16_t {
+        int16_t value = encoder->get_encoder_value();
+        if(value < min){
+            encoder->set_encoder_value(min);
+            value = min;
+        }
+
+        if(value > max){
+            encoder->set_encoder_value(max);
+            value = max;
+        }
+
+        return value;
+    }
 
     struct color {
         public:
@@ -62,9 +80,33 @@ namespace common {
         private:
             color rgb_led;
             uint16_t bar;
-
-        
     };
 
-   
+    class blink {
+        public:
+            constexpr blink(counter::clock * c, unsigned int blink_speed) noexcept : 
+                compare(counter::compare(c,blink_speed)),
+                blinked(false)
+            {}
+
+            auto check() -> bool {
+                if(compare.compare_count()){
+                    blinked = !blinked;
+                }
+                return blinked;
+            }
+
+            auto set_interval(unsigned int interval) -> void {
+                compare.set_interval(interval);
+            }
+
+            auto set_blinked(bool value) -> void {
+                blinked = !value;                            //set it to the oposide of the value set to set it on the next check
+                compare.set_last_interval_to_current();
+            }
+
+        private:
+            counter::compare compare;
+            bool blinked;
+    };   
 }
