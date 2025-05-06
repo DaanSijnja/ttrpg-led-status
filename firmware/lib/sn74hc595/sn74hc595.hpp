@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
 
 template <unsigned int N, class GPIO>
 class sn74hc595 {
