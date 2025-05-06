@@ -27,15 +27,15 @@ class sn74hc595 {
 
         /// @brief 
         inline auto init() noexcept -> void {
-            ser->set_mode(OUTPUT);
-            srclk->set_mode(OUTPUT);
-            rclk->set_mode(OUTPUT);
+            ser->set_dir(OUTPUT);
+            srclk->set_dir(OUTPUT);
+            rclk->set_dir(OUTPUT);
 
             if(srclr != (GPIO)nullptr)
-                ser->set_mode(OUTPUT);
+                ser->set_dir(OUTPUT);
 
             if(oe != (GPIO)nullptr)    
-                ser->set_mode(OUTPUT);
+                ser->set_dir(OUTPUT);
         }
         
         /// @brief 

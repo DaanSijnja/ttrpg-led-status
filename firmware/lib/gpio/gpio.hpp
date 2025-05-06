@@ -13,7 +13,7 @@ namespace atmel
             { }
 
             gpio(const gpio&) = delete;
-            //auto operator=(const gpio&) = delete; // not working for some reason
+            gpio& operator=(const gpio&) = delete; 
 
             gpio(gpio&& other) noexcept :
                 gpio_handle(other.pin)

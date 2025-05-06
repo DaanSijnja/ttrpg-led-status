@@ -7,7 +7,7 @@ namespace atmel
    class gpio_handle
     {
         public:
-            inline auto set_mode(const int mode) -> void {
+            inline auto set_dir(const int mode) -> void {
                 pinMode( pin, mode);
             }
 

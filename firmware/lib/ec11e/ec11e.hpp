@@ -20,11 +20,11 @@ class ec11e {
         {}
     
         auto init() -> void {
-            pin_a->set_mode(INPUT);
-            pin_b->set_mode(INPUT);
+            pin_a->set_dir(INPUT);
+            pin_b->set_dir(INPUT);
 
             if( button != (GPIO)nullptr ) {
-                button->set_mode(INPUT);
+                button->set_dir(INPUT);
             }
         }
 
