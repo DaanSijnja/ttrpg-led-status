@@ -10,19 +10,19 @@
 
 common::led_bar current_led_bar = common::led_bar();
 
-atmel::gpio ser_pin(7);
-atmel::gpio clk_pin(9);
-atmel::gpio latch_pin(8);
+arduino::gpio ser_pin(7);
+arduino::gpio clk_pin(9);
+arduino::gpio latch_pin(8);
 
-atmel::gpio encoder_pin_a(2);
-atmel::gpio encoder_pin_b(3);
-atmel::gpio encoder_button(1);
+arduino::gpio encoder_pin_a(2);
+arduino::gpio encoder_pin_b(3);
+arduino::gpio encoder_button(1);
 
 counter::clock counter_clock;
 common::blink blink( &counter_clock, settings::COUNTER_FREQUENCY / settings::BLINK_FREQUENCY);
 
-sn74hc595<2,atmel::gpio *> shift_reg(&ser_pin, &clk_pin, &latch_pin);
-ec11e<atmel::gpio *> encoder(&encoder_pin_a, &encoder_pin_b, &encoder_button);
+sn74hc595<2,arduino::gpio *> shift_reg(&ser_pin, &clk_pin, &latch_pin);
+ec11e<arduino::gpio *> encoder(&encoder_pin_a, &encoder_pin_b, &encoder_button);
 
 const float step_size = static_cast<float>(common::BAR_SIZE) / static_cast<float>(settings::TOTAL_STEPS);
 uint16_t prev_encoder_value = -1;

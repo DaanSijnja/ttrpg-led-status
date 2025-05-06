@@ -2,7 +2,7 @@
 
 #include "gpio_handle.hpp"
 
-namespace atmel
+namespace arduino
 {
     class gpio :
             public gpio_handle

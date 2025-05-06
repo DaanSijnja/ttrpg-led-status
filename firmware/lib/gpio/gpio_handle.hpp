@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-namespace atmel
+namespace arduino
 {
    class gpio_handle
     {
