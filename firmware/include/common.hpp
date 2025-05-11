@@ -16,7 +16,7 @@ namespace common {
 
     constexpr size_t BAR_SIZE = 10;
 
-    auto clamp_encoder(ec11e<atmel::gpio *> * encoder, int min, int max) -> uint16_t {
+    auto clamp_encoder(ec11e<arduino::gpio *> * encoder, int min, int max) -> uint16_t {
         int16_t value = encoder->get_encoder_value();
         if(value < min){
             encoder->set_encoder_value(min);
@@ -117,4 +117,18 @@ namespace common {
             counter::compare compare;
             bool blinked;
     };   
+
+    struct status_led_check {
+        public:
+            size_t index_value;
+            color led_color;
+
+            constexpr status_led_check(size_t index_value, color led_color) noexcept :
+                index_value(index_value),
+                led_color(led_color)
+            {}
+
+    };
+
+
 }

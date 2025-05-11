@@ -53,9 +53,19 @@ void setup() {
     encoder.init();
 }
 
+auto get_status_led(const size_t index) -> common::color {
+
+    for(size_t i = 0; i < settings::STATUS_LED_INDEX_SIZE; i++){
+        if(index == settings::status_led_index[i].index_value){
+            return settings::status_led_index[i].led_color;
+        }
+    }
+    return common::color(0,0,0);
+}
+
 void loop() {
     static float bar_value, spare;
-    uint16_t encoder_value = common::clamp_encoder(&encoder, 0, settings::TOTAL_STEPS) ;
+    uint16_t encoder_value = common::clamp_encoder(&encoder, 0, settings::TOTAL_STEPS);
 
     if(prev_encoder_value != encoder_value) {
         bar_value = step_size * encoder_value;
@@ -67,23 +77,25 @@ void loop() {
         encoder.set_button_value(true);
         encoder.set_encoder_value(0);
         bar_value = 0;
+        encoder_value = 0;
     }
 
+    // this can be more effiecient?
     current_led_bar.fill_bar( static_cast<size_t>( floor(bar_value) ) );
 
     if(spare > 0.0) {
-        
-
         if(blink.check()) {
             current_led_bar.fill_bar( static_cast<size_t>( floor(bar_value) ) + 1 );
         } 
     }
+    //--
+
+    current_led_bar.set_led(get_status_led(encoder_value));
         
     uint16_t output_bit = current_led_bar.parse();
     uint8_t output[] = {output_bit & 0xFF, (output_bit >> 8) & 0xFF} ;
     shift_reg.set_output(output,MSBFIRST);
 }
-
 
 //encoder related ISR
 ISR (PCINT1_vect) {
